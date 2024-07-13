@@ -1,0 +1,19 @@
+// get categories
+export const GET_CATEGORY_START = "GET_CATEGORY_START";
+export const GET_CATEGORY_SUCCESS = "GET_CATEGORY_SUCCESS";
+export const GET_CATEGORY_ERROR = "GET_CATEGORY_ERROR";
+
+// add category
+export const ADD_CATEGORY_START = "ADD_CATEGORY_START";
+export const ADD_CATEGORY_SUCCESS = "ADD_CATEGORY_SUCCESS";
+export const ADD_CATEGORY_ERROR = "ADD_CATEGORY_ERROR";
+
+// update category
+export const UPDATE_CATEGORY_START = "UPDATE_CATEGORY_START";
+export const UPDATE_CATEGORY_SUCCESS = "UPDATE_CATEGORY_SUCCESS";
+export const UPDATE_CATEGORY_ERROR = "UPDATE_CATEGORY_ERROR";
+
+// Delete category
+export const Delete_CATEGORY_START = "Delete_CATEGORY_START";
+export const Delete_CATEGORY_SUCCESS = "Delete_CATEGORY_SUCCESS";
+export const Delete_CATEGORY_ERROR = "Delete_CATEGORY_ERROR";
