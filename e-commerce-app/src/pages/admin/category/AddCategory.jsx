@@ -5,9 +5,24 @@ import { addCategoryStart } from "../../../redux/actions/category.actions";
 import { useFormData } from "../../../customHooks/useFormData";
 
 const initialState = {
-  name: "",
-  image: "",
-  status: "",
+  name: {
+    value: "",
+    required: true,
+    description: "Please enter name",
+    touched: false,
+  },
+  image: {
+    value: "",
+    required: true,
+    description: "Please select image",
+    touched: false,
+  },
+  status: {
+    value: "0",
+    required: true,
+    description: "Please select status",
+    touched: false,
+  },
 };
 
 const AddCategory = () => {
@@ -17,7 +32,7 @@ const AddCategory = () => {
     initialState,
     "category"
   );
-  let { name, image, status } = formData;
+  let { name, status } = formData;
   const submit = (event) => {
     event.preventDefault();
     dispatch(addCategoryStart(formData));
@@ -45,7 +60,7 @@ const AddCategory = () => {
               id="name"
               className="form-control"
               name="name"
-              value={name}
+              value={name.value}
               onChange={inputChange}
             />
           </div>
@@ -63,7 +78,7 @@ const AddCategory = () => {
             />
             {formData.image && (
               <div className="mt-2">
-                <img src={formData.image} alt="" height={"50px"} />
+                <img src={formData.image.value} alt="" height={"50px"} />
               </div>
             )}
           </div>
@@ -76,7 +91,7 @@ const AddCategory = () => {
               id="status"
               className="form-control"
               name="status"
-              value={status}
+              value={status.value}
               onChange={inputChange}
             >
               <option value="" hidden>
