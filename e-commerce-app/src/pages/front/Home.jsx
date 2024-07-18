@@ -1,5 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Categories from "../../components/Categories";
+import FeaturedProducts from "../../components/FeaturedProducts";
+import LatestProductSection from "../../components/LatestProductSection";
 
 const Home = () => {
   return (
@@ -10,8 +13,10 @@ const Home = () => {
             <div className="col-lg-3"></div>
             <div className="col-lg-9">
               <div
-                className="hero__item set-bg"
-                data-setbg="img/hero/banner.jpg"
+                className="hero__item"
+                style={{
+                  backgroundImage: `url(${process.env.PUBLIC_URL}/img/hero/banner.jpg)`,
+                }}
               >
                 <div className="hero__text">
                   <span>FRUIT FRESH</span>
@@ -29,13 +34,13 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="categories">
+      {/* <section className="categories">
         <div className="container">
           <div className="row">
             <div className="categories__slider owl-carousel">
               <div className="col-lg-3">
                 <div
-                  className="categories__item set-bg"
+                  className="categories__item"
                   data-setbg="img/categories/cat-1.jpg"
                 >
                   <h5>
@@ -86,9 +91,10 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+      <Categories />
 
-      <section className="featured spad">
+      {/* <section className="featured spad">
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
@@ -367,7 +373,8 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+      <FeaturedProducts />
 
       <div className="banner">
         <div className="container">
@@ -386,7 +393,7 @@ const Home = () => {
         </div>
       </div>
 
-      <section className="latest-product spad">
+      {/* <section className="latest-product spad">
         <div className="container">
           <div className="row">
             <div className="col-lg-4 col-md-6">
@@ -586,7 +593,8 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+      <LatestProductSection />
       {/* <!-- Latest Product Section End -->
 
     <!-- Blog Section Begin --> */}

@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebaseconfig";
 import { useState } from "react";
@@ -6,13 +7,26 @@ export const useFormData = (initialState, flag) => {
   const [formData, setFomData] = useState(initialState);
   const [uploadFilesStatus, setUploadFileStatus] = useState(false);
 
-  const inputChange = (event) => {
+  const inputChange = (event, object) => {
     setFomData((prevValue) => ({
       ...prevValue,
-      [event.target.name]: event.target.value,
+      [event.target.name]: {
+        ...object,
+        value: event.target.value,
+        status:
+          event.target.value !== "" && object.required ? "valid" : "invalid",
+      },
     }));
+    if (object.required) {
+      setFomData((prevValue) => ({
+        ...prevValue,
+
+        formStatus:
+          event.target.value !== "" && object.required ? "valid" : "invalid",
+      }));
+    }
   };
-  const uploadFiles = (event) => {
+  const uploadFiles = (event, object) => {
     setUploadFileStatus(true);
     const storageRef = ref(storage, "flag/" + event.target.files[0].name);
     const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
@@ -57,9 +71,24 @@ export const useFormData = (initialState, flag) => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setFomData((prevData) => ({
             ...prevData,
-            image: downloadURL,
+            image: {
+              ...object,
+              value: downloadURL,
+              touched: true,
+              status:
+                downloadURL !== "" && object.required ? "valid" : "invalid",
+            },
           }));
           setUploadFileStatus(false);
+          if (object.required) {
+            setFomData((prevValue) => ({
+              ...prevValue,
+              formStatus:
+                event.target.files.length !== "" && object.required
+                  ? "valid"
+                  : "invalid",
+            }));
+          }
         });
       }
     );

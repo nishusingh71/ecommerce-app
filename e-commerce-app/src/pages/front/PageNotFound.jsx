@@ -4,8 +4,10 @@ const PageNotFound = () => {
   return (
     <>
       <section
-        className="breadcrumb-section set-bg"
-        data-setbg="img/breadcrumb.jpg"
+        className="breadcrumb-section"
+        style={{
+          backgroundImage: `url(${process.env.PUBLIC_URL}/img/breadcrumb.jpg)`,
+        }}
       >
         <div className="container">
           <div className="row">
