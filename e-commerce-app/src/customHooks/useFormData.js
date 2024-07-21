@@ -1,97 +1,62 @@
-/* eslint-disable default-case */
+import { useState } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebaseconfig";
-import { useState } from "react";
 
 export const useFormData = (initialState, flag) => {
-  const [formData, setFomData] = useState(initialState);
-  const [uploadFilesStatus, setUploadFileStatus] = useState(false);
-
-  const inputChange = (event, object) => {
-    setFomData((prevValue) => ({
-      ...prevValue,
-      [event.target.name]: {
-        ...object,
-        value: event.target.value,
-        status:
-          event.target.value !== "" && object.required ? "valid" : "invalid",
-      },
-    }));
-    if (object.required) {
-      setFomData((prevValue) => ({
-        ...prevValue,
-
-        formStatus:
-          event.target.value !== "" && object.required ? "valid" : "invalid",
-      }));
+    const [formData, setFomData] = useState(initialState);
+    const [uploadFileStatus, setUploadFileStatus] = useState(false);
+    
+    const inputChange = (event, object) => {
+        
+        object.value = event.target.value;
+        object.touched = true
+        
+        setFomData((prevValue) => ([...prevValue]))
     }
-  };
-  const uploadFiles = (event, object) => {
-    setUploadFileStatus(true);
-    const storageRef = ref(storage, "flag/" + event.target.files[0].name);
-    const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
 
-    // Listen for state changes, errors, and completion of the upload.
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
-        }
-      },
-      (error) => {
-        // A full list of error codes is available at
-        // https://firebase.google.com/docs/storage/web/handle-errors
-        switch (error.code) {
-          case "storage/unauthorized":
-            // User doesn't have permission to access the object
-            break;
-          case "storage/canceled":
-            // User canceled the upload
-            break;
+    const uploadFiles = (event, object) => {
 
-          // ...
+        setUploadFileStatus(true);
 
-          case "storage/unknown":
-            // Unknown error occurred, inspect error.serverResponse
-            break;
-        }
-      },
-      () => {
-        // Upload completed successfully, now we can get the download URL
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setFomData((prevData) => ({
-            ...prevData,
-            image: {
-              ...object,
-              value: downloadURL,
-              touched: true,
-              status:
-                downloadURL !== "" && object.required ? "valid" : "invalid",
+        const storageRef = ref(storage, flag + '/' + event.target.files[0].name);
+
+        const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
+
+        // Register three observers:
+        // 1. 'state_changed' observer, called any time the state changes
+        // 2. Error observer, called on failure
+        // 3. Completion observer, called on successful completion
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                // Observe state change events such as progress, pause, and resume
+                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                switch (snapshot.state) {
+                    case 'paused':
+                        console.log('Upload is paused');
+                        break;
+                    case 'running':
+                        console.log('Upload is running');
+                        break;
+
+                    default:
+                        break;
+                }
             },
-          }));
-          setUploadFileStatus(false);
-          if (object.required) {
-            setFomData((prevValue) => ({
-              ...prevValue,
-              formStatus:
-                event.target.files.length !== "" && object.required
-                  ? "valid"
-                  : "invalid",
-            }));
-          }
-        });
-      }
-    );
-  };
-  return [formData, uploadFilesStatus, setFomData, inputChange, uploadFiles];
-};
+            (error) => {
+                // Handle unsuccessful uploads
+            },
+            () => {
+                // Handle successful uploads on complete
+                // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    object.value = downloadURL;
+                    setFomData((prevValue) => ([...prevValue]))
+
+                    setUploadFileStatus(false)
+                });
+            }
+        );
+    }
+
+    return [formData, uploadFileStatus , setFomData, inputChange, uploadFiles]
+}

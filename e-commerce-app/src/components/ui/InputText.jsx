@@ -14,7 +14,7 @@ const InputText = ({ formControl, inputChange }) => {
       </label>
       <input
         type="text"
-        id={formControl.name}
+        id='name'
         className={
           formControl.required &&
           formControl.touched &&
@@ -24,7 +24,7 @@ const InputText = ({ formControl, inputChange }) => {
         }
         name={formControl.name}
         value={formControl.value}
-        onChange={(event) => inputChange(event, formControl.name)}
+        onChange={(event) => inputChange(event, formControl)}
       />
       {formControl.required &&
         formControl.touched &&

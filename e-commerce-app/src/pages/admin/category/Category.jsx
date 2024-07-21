@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -13,10 +13,12 @@ const Category = () => {
   const deleteCategory = (id) => {
     dispatch(deleteCategoryStart(id));
   };
-
-  useEffect(() => {
+  const getCategory = useCallback(() => {
     dispatch(getCategoryStart());
-  }, [categories.length, dispatch]);
+  }, [dispatch]);
+  useEffect(() => {
+    getCategory();
+  }, [categories.length, getCategory]);
 
   return (
     <div className="card">
@@ -51,7 +53,7 @@ const Category = () => {
                       />
                     </td>
                     <td>{category.name}</td>
-                    <td>{category.status === "1" ? "Active" : "Inactive"}</td>
+                    <td>{category.status === "active" ? "Active" : "Inactive"}</td>
                     <td>
                       <Link
                         to={`/admin/category/edit/${category.id}`}

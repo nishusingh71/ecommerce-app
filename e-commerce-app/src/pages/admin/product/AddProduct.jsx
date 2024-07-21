@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormData } from "../../../customHooks/useFormData";
@@ -9,28 +9,30 @@ import Number from "../../../components/ui/Number";
 import Textarea from "../../../components/ui/Textarea";
 import SelectBox from "../../../components/ui/SelectBox";
 import { addProductStart } from "../../../redux/actions/product.actions";
+import { modifyFormData } from "../../../helpers/formHelper";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  let [formData, uploadFilesStatus, , inputChange, uploadFiles] = useFormData(
-    initialState,
-    "product"
-  );
+  let [formStatus, setFormStatus] = useState(true);
+  let [formData, uploadFilesStatus, setFormData, inputChange, uploadFiles] =
+    useFormData(initialState, "product");
   const categories = useSelector((state) => state.category.categories);
   const submit = (event) => {
     event.preventDefault();
-    if (formData.formStatus === "valid") {
-      let transferObject = {};
-      for (const key in formData) {
-        if (key !== "formStatus") {
-          transferObject[key] = formData[key].value;
-        }
-      }
-      dispatch(addProductStart(transferObject));
+    let result = modifyFormData(formData);
+    if (result.isFormValid) {
+      dispatch(addProductStart(result.modifyObject));
+      setFormStatus(true);
       setTimeout(() => {
-        navigate("/admin/product");
+        navigate('/admin/product')
       }, 1000);
+    } else {
+      setFormStatus(false);
+      for (const formControl of formData) {
+        formControl.touched = true;
+      }
+      setFormData((prevValue) => [...prevValue]);
     }
   };
 
@@ -43,6 +45,9 @@ const AddProduct = () => {
         </Link>
       </div>
       <div className="card-body">
+        {!formStatus&&<h5 className="text-danger text-center">
+          Please Enter all required Field
+        </h5>}
         <form onSubmit={submit}>
           {initialState.length > 0 &&
             initialState.map((state, index) => {

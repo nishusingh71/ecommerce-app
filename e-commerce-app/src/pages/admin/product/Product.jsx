@@ -1,6 +1,22 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import {
+  deleteProductStart,
+  getProductStart,
+} from "../../../redux/actions/product.actions";
 const Product = () => {
+  const dispatch = useDispatch();
+  let products = useSelector((state) => state.product.products);
+  const deleteProduct = (id) => {
+    dispatch(deleteProductStart(id));
+  };
+  let getProduct = useCallback(() => {
+    dispatch(getProductStart());
+  }, [dispatch]);
+  useEffect(() => {
+    getProduct();
+  }, [products.length, getProduct]);
   return (
     <div className="card">
       <div className="card-header d-flex justify-content-between ">
@@ -21,29 +37,52 @@ const Product = () => {
                 <th>Category</th>
                 <th>Price</th>
                 <th>Quantity</th>
+                <th>Weight</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
+              {products.length > 0 &&
+                products.map((product, index) => {
+                  return (
+                    <tr key={index}>
+                      <th>{index + 1}</th>
+                      <td>
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          height={50}
+                        />
+                      </td>
+                      <td>{product.name}</td>
+                      <td>{product.type}</td>
+                      <td>{product.category}</td>
+                      <td>${product.price}</td>
+                      <td>{product.quantity}</td>
+                      <td>{product.weight}</td>
 
-                <td>
-                  <Link to={``} className="btn btn-warning me-2">
-                    Edit
-                  </Link>
-                  <button className="btn btn-danger">Delete</button>
-                </td>
-              </tr>
+                      <td>
+                        {product.status === "active" ? "Active" : "Inactive"}
+                      </td>
+
+                      <td>
+                        <Link
+                          to={`/admin/product/edit/${product.id}`}
+                          className="btn btn-warning me-2"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => deleteProduct(product.id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

@@ -1,24 +1,29 @@
-export const initialState = {
-  name: {
+export const initialState = [
+  {
+    name: "name",
+    type: "text",
     value: "",
     required: true,
     description: "Please enter name",
     touched: true,
     status: "",
   },
-  image: {
+  {
+    name: "image",
+    type: "file",
     value: "",
     required: true,
     description: "Please select image",
     touched: false,
     status: "",
   },
-  status: {
-    value: "0",
+  {
+    name: "status",
+    type: "select",
+    value: "",
     required: true,
     description: "Please select status",
     touched: false,
     status: "",
   },
-  formStatus: "",
-};
+];

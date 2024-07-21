@@ -1,39 +1,61 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { initialState } from "./categoryValidation";
 import { useFormData } from "../../../customHooks/useFormData";
 import { updateCategoryStart } from "../../../redux/actions/category.actions";
+import { modifyFormData } from "../../../helpers/formHelper";
+import InputText from "../../../components/ui/InputText";
+import FileInput from "../../../components/ui/FileInput";
+import SelectBox from "../../../components/ui/SelectBox";
 
 const EditCategory = () => {
-  let { id } = useParams();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
   let categories = useSelector((state) => state.category.categories);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
 
+  let [formStatus, setFormStatus] = useState(true);
   let [formData, uploadFileStatus, setFormData, inputChange, uploadFiles] =
-    useFormData(initialState, "category");
+    useFormData(initialState, "product");
+
+  const submit = (event) => {
+    event.preventDefault();
+    let result = modifyFormData(formData);
+
+    if (result.isFormValid) {
+      dispatch(updateCategoryStart(result.modifyObject, id));
+
+      setFormStatus(true);
+
+      setTimeout(() => {
+        navigate("/admin/category");
+      }, 1000);
+    } else {
+      setFormStatus(false);
+
+      for (const formControl of formData) {
+        formControl.touched = true;
+      }
+
+      setFormData((prevValues) => [...prevValues]);
+    }
+  };
 
   const getCategoryById = useCallback(
     (id) => {
-      let category = categories.find((c) => c.id === id);
+      let category = categories.find((category) => category.id === id);
 
       if (category) {
-        for (const key in formData) {
-          if (key in category) {
-            let obj = {
-              ...formData[key],
-              value: category[key],
-            };
-
-            setFormData((prevValue) => ({
-              ...prevValue,
-              [key]: obj,
-              formStatus: "valid",
-            }));
+        for (const formControl of formData) {
+          for (const key in category) {
+            if (key === formControl.name) {
+              formControl.value = category[key];
+            }
           }
         }
+
+        setFormData((prevValue) => [...prevValue]);
       } else {
         navigate("/admin/category");
       }
@@ -41,32 +63,9 @@ const EditCategory = () => {
     [categories, formData, setFormData, navigate]
   );
 
-  const submit = (event) => {
-    event.preventDefault();
-
-    if (formData.formStatus === "valid") {
-      let transferObject = {};
-
-      for (const key in formData) {
-        if (key !== "formStatus") {
-          transferObject[key] = formData[key].value;
-        }
-      }
-
-      dispatch(updateCategoryStart(transferObject, id));
-
-      setTimeout(() => {
-        navigate("/admin/category");
-      }, 1000);
-    }
-  };
-
   useEffect(() => {
-    if (!id) {
-      navigate("/admin/category");
-    }
     getCategoryById(id);
-  }, []);
+  }, [id]);
 
   return (
     <div className="card">
@@ -74,127 +73,59 @@ const EditCategory = () => {
         <h5>Edit Category</h5>
         <Link
           to="/admin/category"
-          className="btn btn-primary btn-sm text-white"
+          className="primary-btn"
         >
           Back
         </Link>
       </div>
       <div className="card-body">
+        {!formStatus && (
+          <h5 className="text-danger text-center">
+            Please Enter all required Field
+          </h5>
+        )}
         <form onSubmit={submit}>
-          <div
-            className={
-              formData.name.required &&
-              formData.name.touched &&
-              formData.name.value === ""
-                ? "form-group mb-4 text-danger"
-                : "form-group mb-4"
-            }
-          >
-            <label htmlFor="name" className="mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              className={
-                formData.name.required &&
-                formData.name.touched &&
-                formData.name.value === ""
-                  ? "form-control border-danger"
-                  : "form-control"
+          {initialState.length > 0 &&
+            // eslint-disable-next-line array-callback-return
+            initialState.map((state, index) => {
+              if (state.type === "text") {
+                return (
+                  <InputText
+                    formControl={state}
+                    inputChange={inputChange}
+                    key={index}
+                  />
+                );
               }
-              name="name"
-              value={formData.name.value}
-              onChange={(event) => inputChange(event, formData.name)}
-            />
-            {formData.name.required &&
-              formData.name.touched &&
-              formData.name.value === "" && (
-                <p className="mt-2 text-danger">{formData.name.description}</p>
-              )}
-          </div>
-
-          <div
-            className={
-              formData.image.required &&
-              formData.image.touched &&
-              formData.image.value === ""
-                ? "form-group mb-4 text-danger"
-                : "form-group mb-4"
-            }
-          >
-            <label htmlFor="image" className="mb-2">
-              Image
-            </label>
-            <input
-              type="file"
-              id="image"
-              className={
-                formData.image.required &&
-                formData.image.touched &&
-                formData.image.value === ""
-                  ? "form-control border-danger"
-                  : "form-control"
+              if (state.type === "file") {
+                return (
+                  <FileInput
+                    formControl={state}
+                    uploadFiles={uploadFiles}
+                    key={index}
+                  />
+                );
               }
-              onChange={(event) => uploadFiles(event, formData.image)}
-            />
-            {formData.image.value && (
-              <div className="mt-2">
-                <img src={formData.image.value} alt="" height={"50px"} />
-              </div>
-            )}
-            {formData.image.required &&
-              formData.image.touched &&
-              formData.image.value === "" && (
-                <p className="mt-2 text-danger">{formData.image.description}</p>
-              )}
-          </div>
-
-          <div
-            className={
-              formData.status.required &&
-              formData.status.touched &&
-              formData.status.value === ""
-                ? "form-group mb-4 text-danger"
-                : "form-group mb-4"
-            }
-          >
-            <label htmlFor="status" className="mb-2">
-              Status
-            </label>
-            <select
-              id="status"
-              className={
-                formData.status.required &&
-                formData.status.touched &&
-                formData.status.value === ""
-                  ? "form-control border-danger"
-                  : "form-control"
+              if (state.type === "select") {
+                if (state.name === "status") {
+                  return (
+                    <SelectBox
+                      formControl={state}
+                      inputChange={inputChange}
+                      values={[{ name: "active" }, { name: "inactive" }]}
+                      key={index}
+                    />
+                  );
+                }
               }
-              name="status"
-              value={formData.status.value}
-              onChange={(event) => inputChange(event, formData.status)}
-            >
-              <option value="" hidden>
-                Select Status
-              </option>
-              <option value="1">Active</option>
-              <option value="0">Inactive</option>
-            </select>
-            {formData.status.required &&
-              formData.status.touched &&
-              formData.status.value === "" && (
-                <p className="mt-2 text-danger">
-                  {formData.status.description}
-                </p>
-              )}
-          </div>
+            })}
 
           <div className="row">
             <div className="col-sm-6 d-grid">
               <button
                 type="submit"
-                className="btn btn-primary text-white"
+                className="primary-btn"
+                style={{ border: "none" }}
                 disabled={uploadFileStatus}
               >
                 Submit
